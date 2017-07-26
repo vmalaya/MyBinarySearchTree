@@ -1,17 +1,17 @@
 import java.util.Collection;
 import java.util.Iterator;
 
-public class BinarySearchTree implements Collection{
-    private Node root;
+public class BinarySearchTree<T> {
+    private Node<T> root;
     private int size;
 
 
-    public class Node {
-        private Object data;
+    private static class Node<T> {
+        private T data;
         private Node left;
         private Node right;
 
-        public Node(Object data) {
+        public Node(T data) {
             this.data = data;
             this.left = null;
             this.right = null;
@@ -31,22 +31,24 @@ public class BinarySearchTree implements Collection{
         this.size = 0;
     }
 
-    @Override
+
     public int size() {
         return size;
     }
 
-    @Override
+
     public boolean isEmpty() {
         return this.size == 0;
     }
 
-    @Override
-    public boolean contains(Object o) {
-        if(root != null ){
-            Node node = new Node(o);
 
-            Node currentNode = root;
+    public boolean contains(T o) {
+        if(root != null ){
+            if(o == null){
+                throw new IllegalArgumentException("Illegal parameter value.");
+            }
+            Node<T> node = new Node<>(o);
+            Node<T> currentNode = root;
             while(currentNode != null){
                 int resultComparing = BinarySearchTree.compare(currentNode, node);
                 if(resultComparing == 0){
@@ -61,30 +63,33 @@ public class BinarySearchTree implements Collection{
             }
 
         } else {
-            System.out.println("Tree is empty!");
+            throw  new RuntimeException("Tree is empty!");
         }
         return false;
     }
 
-    @Override
+
     public Iterator iterator() {
         return null;
     }
 
-    @Override
+
     public Object[] toArray() {
         return new Object[0];
     }
 
-    @Override
-    public boolean add(Object o) {
-        Node newNode = new Node(o);
+
+    public boolean add(T o) {
+        if (o == null){
+            throw new IllegalArgumentException("Illegal parameter value!");
+        }
+        Node<T> newNode = new Node<>(o);
         if (root == null){
             root = newNode;
             size++;
             return  true;
         }
-        Node currentNode = root;
+        Node<T> currentNode = root;
         while (currentNode != null) {
             int resultOfComparing = BinarySearchTree.compare(currentNode, newNode);
             if (resultOfComparing > 0) {
@@ -105,20 +110,29 @@ public class BinarySearchTree implements Collection{
                     currentNode = currentNode.right;
                 }
             }
+            if(resultOfComparing == 0){
+                throw new IllegalArgumentException("There is node with such value!");
+            }
         }
         return false;
     }
 
-    @Override
-    public boolean remove(Object o) {
-        Node removedNode = new Node(o);
-        Node currentNode = root;
+
+    public boolean remove(T o) {
+        if(this.size == 0){
+            throw new RuntimeException("Tree is empty. Empty list do not support operation 'remove'.");
+        }
+        if (o == null){
+            throw new IllegalArgumentException("Illegal parameter value!");
+        }
+        Node<T> removedNode = new Node(o);
+        Node<T> currentNode = root;
         while(currentNode != null){
             int resultComparing =  BinarySearchTree.compare(currentNode, removedNode);
             if ( resultComparing == 0){
                 if(currentNode.left != null &&  currentNode.right != null) {
                     removedNode = currentNode.right.minimum();
-                    Object newData = removedNode.data;
+                    T newData = removedNode.data;
                     currentNode.data = newData;
                     removedNode = null;
                     size--;
@@ -126,13 +140,13 @@ public class BinarySearchTree implements Collection{
                 } else if((currentNode.left == null && currentNode.right != null)
                         || (currentNode.left != null && currentNode.right == null) ){
                     if(currentNode.left == null ){
-                        currentNode.data = currentNode.right.data;
+                        currentNode.data =(T)currentNode.right.data;
                         currentNode.right = null;
                         size--;
                         return true;
                     }
                     if(currentNode.right == null){
-                        currentNode.data = currentNode.left.data;
+                        currentNode.data = (T) currentNode.left.data;
                         currentNode.left = null;
                         size--;
                         return  true;
@@ -149,18 +163,17 @@ public class BinarySearchTree implements Collection{
             if(resultComparing < 0){
                 currentNode = currentNode.right;
             }
-
         }
 
         return false;
     }
 
-    @Override
+
     public boolean addAll(Collection c) {
         return false;
     }
 
-    @Override
+
     public void clear() {
         root.right = null;
         root.left = null;
@@ -168,27 +181,27 @@ public class BinarySearchTree implements Collection{
         root = null;
     }
 
-    @Override
+
     public boolean retainAll(Collection c) {
         return false;
     }
 
-    @Override
+
     public boolean removeAll(Collection c) {
         return false;
     }
 
-    @Override
+
     public boolean containsAll(Collection c) {
         return false;
     }
 
-    @Override
+
     public Object[] toArray(Object[] a) {
         return new Object[0];
     }
 
-    public static int compare(Node nodeCompareWith, Node nodeCompareTo){
+    private  static int compare(Node nodeCompareWith, Node nodeCompareTo){
         Object nodeCompareWith_data = nodeCompareWith.data;
         Object nodeCompareTo_data = nodeCompareTo.data;
         Comparable nodeComparableWith = (Comparable)nodeCompareWith_data;
